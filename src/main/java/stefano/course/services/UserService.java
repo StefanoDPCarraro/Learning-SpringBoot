@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import stefano.course.entities.User;
 import stefano.course.repositories.UserRepository;
 import stefano.course.services.exceptions.DatabaseException;
@@ -47,9 +48,13 @@ public class UserService {
     }
 
     public User update(Long id, User obj){
-        User ent = userRepository.getReferenceById(id);
-        updateData(ent, obj);
-        return userRepository.save(ent);
+        try{
+            User ent = userRepository.getReferenceById(id);
+            updateData(ent, obj);
+            return userRepository.save(ent);
+        } catch(EntityNotFoundException e){
+            throw new ResourceNotFoundException(id);
+        }
     }
 
     public void updateData(User ent, User obj){
